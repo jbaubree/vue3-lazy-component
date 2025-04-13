@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20, 22]
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set node version to ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: https://registry.npmjs.org/
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Run build
+        run: pnpm build
+
+      - name: Run test
+        run: pnpm test
+
+      - name: Publish Results Badge
+        uses: wjervis7/vitest-badge-action@v1.0.0
+        if: ${{ matrix.node == 22 && matrix.os == 'ubuntu-latest' }}
+        with:
+          badge-text: Coverage
+          result-type: statements
+          upload-badge: false
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        if: ${{ matrix.node == 22 && matrix.os == 'ubuntu-latest' }}
+        with:
+          file_pattern: ./badge.svg
+
+  check:
+    runs-on: ubuntu-latest
+    name: 'Check: node-20, ubuntu-latest'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set node version to 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
