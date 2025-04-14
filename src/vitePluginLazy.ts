@@ -21,6 +21,12 @@ function addImportIfNeeded(code: string, importStatement: string, imports: strin
     imports.push(importStatement)
   }
 }
+function extractRawValue(template: string, prop: { loc: { start: { offset: number }, end: { offset: number } } }): string {
+  return template
+    .slice(prop.loc.start.offset, prop.loc.end.offset)
+    .split('=')[1]
+}
+const cleanValue = (value: string, quote: string = '"'): string => value.replaceAll('"', quote)
 
 export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): Plugin {
   const {
@@ -67,55 +73,42 @@ export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): P
           const priorityProp = node.props.find((p: Record<string, string>) => [':priority', 'priority'].includes(p.rawName || p.name))
           const intersectionObserverProp = node.props.find((p: Record<string, string>) => [':intersection-observer', 'intersectionObserver'].includes(p.rawName || p.name))
 
-          const errorComponentVar = 'LazyErrorComponent'
-          const customErrorComponentVar = 'LazyCustomErrorComponent'
-
-          const lazyOptions: Record<string, string | number> = {
+          const lazyOptions: Record<string, string | number | object> = {
             componentFactory: `() => import('${componentFolder ?? '.'}/${pascalName}.vue')`,
             loadingComponent: skeletonName,
           }
 
-          if (errorComponentPathProp) {
-            const errorComponentPathPropVal = template.slice(errorComponentPathProp.loc.start.offset, errorComponentPathProp.loc.end.offset).split('=')[1].replaceAll('"', '')
-            lazyOptions.errorComponent = customErrorComponentVar
-            addImportIfNeeded(scriptSetup, `import ${customErrorComponentVar} from '${errorComponentPathPropVal}'`, imports)
-          }
-          else if (errorComponentPath) {
+          const errorPath = errorComponentPathProp ? extractRawValue(template, errorComponentPathProp).replaceAll('"', '') : errorComponentPath
+          const errorComponentVar = errorComponentPathProp ? 'LazyCustomErrorComponent' : 'errorComponentVar'
+          if (errorPath != null) {
             lazyOptions.errorComponent = errorComponentVar
-            addImportIfNeeded(scriptSetup, `import ${errorComponentVar} from '${errorComponentPath}'`, imports)
+            addImportIfNeeded(scriptSetup, `import ${errorComponentVar} from '${errorPath}'`, imports)
           }
-          if (delayProp) {
-            const delayPropVal = Number(template.slice(delayProp.loc.start.offset, delayProp.loc.end.offset).split('=')[1].replaceAll('"', ''))
-            lazyOptions.delay = delayPropVal
+
+          const assignLazyOption = <T extends string | number | undefined | object>(
+            prop: { loc: { start: { offset: number }, end: { offset: number } } } | undefined,
+            fallback: T,
+            key: string,
+            transform: (value: string) => T = v => v as unknown as T,
+          ): void => {
+            const value = prop ? transform(extractRawValue(template, prop)) : fallback
+            if (value != null) {
+              lazyOptions[key] = value
+            }
           }
-          else if (delay) {
-            lazyOptions.delay = delay
-          }
-          if (timeoutProp) {
-            const timeoutPropVal = Number(template.slice(timeoutProp.loc.start.offset, timeoutProp.loc.end.offset).split('=')[1].replaceAll('"', ''))
-            lazyOptions.timeout = timeoutPropVal
-          }
-          else if (timeout) {
-            lazyOptions.timeout = timeout
-          }
-          if (priorityProp) {
-            const priorityPropVal = template.slice(priorityProp.loc.start.offset, priorityProp.loc.end.offset).split('=')[1].replaceAll('"', '\'')
-            lazyOptions.priority = priorityPropVal
-          }
-          else if (priority) {
-            lazyOptions.priority = priority
-          }
-          if (intersectionObserverProp) {
-            const intersectionObserverPropVal = template.slice(intersectionObserverProp.loc.start.offset, intersectionObserverProp.loc.end.offset).split('=')[1].replaceAll('"', '')
-            lazyOptions.intersectionObserver = JSON.parse(JSON.stringify(intersectionObserverPropVal))
-          }
-          else if (intersectionObserver) {
-            lazyOptions.intersectionObserver = JSON.parse(JSON.stringify(intersectionObserver))
-          }
-          if (loadDataProp) {
-            const loadDataVal = template.slice(loadDataProp.loc.start.offset, loadDataProp.loc.end.offset).split('=')[1].replaceAll('"', '')
-            lazyOptions.loadData = loadDataVal
-          }
+
+          assignLazyOption(delayProp, delay, 'delay', v => Number(cleanValue(v)))
+          assignLazyOption(timeoutProp, timeout, 'timeout', v => Number(cleanValue(v)))
+          assignLazyOption(priorityProp, priority, 'priority', v => cleanValue(v, '\''))
+          assignLazyOption(intersectionObserverProp, intersectionObserver, 'intersectionObserver', (v) => {
+            try {
+              return JSON.parse(cleanValue(v))
+            }
+            catch {
+              return intersectionObserver
+            }
+          })
+          assignLazyOption(loadDataProp, undefined, 'loadData', v => cleanValue(v))
 
           const propsAsString = Object.entries(lazyOptions)
             .map(([key, value]) => `${key}: ${value}`)

@@ -12,7 +12,6 @@ function removeFromQueue(uid: string): void {
 
 function triggerRemainingLazyLoads(): void {
   const anyStillLoading = Object.values(lazyComponentQueue).some(({ isLoading }) => isLoading)
-
   if (!anyStillLoading) {
     Object.entries(lazyComponentQueue).forEach(([uid, { loadCallback, isLoading }]) => {
       if (!isLoading) {
@@ -90,11 +89,12 @@ export function defineLazyComponent<T extends Component>({
           if (!uid.value || !wrapperRef.value)
             return
 
+          lazyComponentQueue[uid.value] = {
+            loadCallback: loadComponent,
+            isLoading: false,
+          }
+
           if (priority === 'immediate') {
-            lazyComponentQueue[uid.value] = {
-              loadCallback: loadComponent,
-              isLoading: false,
-            }
             loadComponent()
             return
           }
@@ -116,11 +116,6 @@ export function defineLazyComponent<T extends Component>({
 
           observer.observe(wrapperRef.value)
           observerRef.value = observer
-
-          lazyComponentQueue[uid.value] = {
-            loadCallback: loadComponent,
-            isLoading: false,
-          }
         })
 
         onBeforeUnmount(() => {
