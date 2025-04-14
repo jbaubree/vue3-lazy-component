@@ -6,9 +6,17 @@
 [![CI](https://github.com/jbaubree/vue3-lazy-component/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jbaubree/vue3-lazy-component/actions/workflows/ci.yml)
 [![Coverage](https://github.com/jbaubree/vue3-lazy-component/blob/main/badge.svg)](https://github.com/jbaubree/vue3-lazy-component/tree/main/test)
 
-Vue 3 lazy component system with advanced async control — powered by `defineLazyComponent()` and an optional Vite plugin that auto-transforms `<LazyXxx />` components in your templates.
+Vue 3 lazy component system with advanced async control — powered by `defineLazyComponent()` and a Vite plugin that auto-transforms `<LazyXxx />` components in your templates.
 
 > ✨ Supports loading/error states, visibility-based loading, priority queue, auto-skeleton fallback, and custom `loadData()` hooks.
+
+---
+
+- ✅ Lazy loading based on visibility
+- ✅ Optional skeleton & error UI
+- ✅ `loadData()` hook with async queue
+- ✅ Zero-runtime if you use vite plugin
+- ✅ Seamless fallback to `defineAsyncComponent`
 
 ---
 
@@ -127,21 +135,12 @@ const UserCard = defineLazyComponent({
 
 ---
 
-## Why use vue3-lazy-component?
-
-- ✅ Lazy loading based on visibility
-- ✅ Optional skeleton & error UI
-- ✅ `loadData()` hook with async queue
-- ✅ Zero-runtime if you use vite plugin
-- ✅ Seamless fallback to `defineAsyncComponent`
-
----
-
 ## Known Limitations / TODO
 
 - ⚠️ Only supports `<script setup>` files for plugin mode
 - ❌ Slots are not passed through yet
 - 🧪 Tests WIP
+- 🧪 Expose types details with comments WIP
 - 🧱 SSR not yet supported
 
 ---
