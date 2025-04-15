@@ -61,8 +61,7 @@ export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): P
             componentFactory: `() => import('${componentFolder ?? '.'}/${pascalName}.vue')`,
             loadingComponent: skeletonName,
           }
-
-          const errorPath = errorComponentPathProp ? extractRawValue(template, errorComponentPathProp).replaceAll('"', '') : errorComponentPath
+          const errorPath = errorComponentPathProp ? extractRawValue(template, errorComponentPathProp).replaceAll('\'', '').replaceAll('"', '') : errorComponentPath
           const errorComponentVar = errorComponentPathProp ? 'LazyCustomErrorComponent' : 'errorComponentVar'
           if (errorPath != null) {
             lazyOptions.errorComponent = errorComponentVar
@@ -94,9 +93,7 @@ export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): P
           })
           assignLazyOption(loadDataProp, undefined, 'loadData', v => cleanValue(v, ''))
 
-          const propsAsString = Object.entries(lazyOptions)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(', ')
+          const propsAsString = Object.entries(lazyOptions).map(([key, value]) => `${key}: ${typeof value === 'object' && value !== null ? JSON.stringify(value) : value}`).join(', ')
 
           const newTag = `<component :is="defineLazyComponent({ ${propsAsString} })" />`
 

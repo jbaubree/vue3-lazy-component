@@ -9,7 +9,9 @@ export function addImportIfNeeded(code: string, importStatement: string, imports
   }
 }
 export function extractRawValue(template: string, prop: { loc: { start: { offset: number }, end: { offset: number } } }): string {
-  return template.slice(prop.loc.start.offset, prop.loc.end.offset).split('=')[1]
+  const raw = template.slice(prop.loc.start.offset, prop.loc.end.offset)
+  const match = raw.match(/=\s*(['"])(.*?)\1/)
+  return match ? match[1] + match[2] + match[1] : ''
 }
 export function cleanValue(value: string, quote: string = '"'): string {
   return value.replaceAll('"', quote)
