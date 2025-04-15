@@ -22,9 +22,7 @@ function addImportIfNeeded(code: string, importStatement: string, imports: strin
   }
 }
 function extractRawValue(template: string, prop: { loc: { start: { offset: number }, end: { offset: number } } }): string {
-  return template
-    .slice(prop.loc.start.offset, prop.loc.end.offset)
-    .split('=')[1]
+  return template.slice(prop.loc.start.offset, prop.loc.end.offset).split('=')[1]
 }
 const cleanValue = (value: string, quote: string = '"'): string => value.replaceAll('"', quote)
 
@@ -108,7 +106,7 @@ export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): P
               return intersectionObserver
             }
           })
-          assignLazyOption(loadDataProp, undefined, 'loadData', v => cleanValue(v))
+          assignLazyOption(loadDataProp, undefined, 'loadData', v => cleanValue(v, ''))
 
           const propsAsString = Object.entries(lazyOptions)
             .map(([key, value]) => `${key}: ${value}`)
