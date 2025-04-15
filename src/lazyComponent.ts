@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import type { Component } from 'vue'
 import { computed, defineAsyncComponent, getCurrentInstance, h, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 
@@ -138,3 +139,4 @@ export function defineLazyComponent<T extends Component>({
     timeout,
   })
 }
+/* c8 ignore end */

@@ -83,14 +83,7 @@ export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): P
           assignLazyOption(delayProp, delay, 'delay', v => Number(cleanValue(v)))
           assignLazyOption(timeoutProp, timeout, 'timeout', v => Number(cleanValue(v)))
           assignLazyOption(priorityProp, priority, 'priority', v => cleanValue(v, '\''))
-          assignLazyOption(intersectionObserverProp, intersectionObserver, 'intersectionObserver', (v) => {
-            try {
-              return JSON.parse(cleanValue(v))
-            }
-            catch {
-              return intersectionObserver
-            }
-          })
+          assignLazyOption(intersectionObserverProp, intersectionObserver, 'intersectionObserver', v => JSON.parse(cleanValue(v)))
           assignLazyOption(loadDataProp, undefined, 'loadData', v => cleanValue(v, ''))
 
           const propsAsString = Object.entries(lazyOptions).map(([key, value]) => `${key}: ${typeof value === 'object' && value !== null ? JSON.stringify(value) : value}`).join(', ')
