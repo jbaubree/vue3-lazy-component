@@ -1,16 +1,16 @@
 import type { Component } from 'vue'
 import { computed, defineAsyncComponent, getCurrentInstance, h, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 
-const lazyComponentQueue = reactive<Record<string, {
+export const lazyComponentQueue = reactive<Record<string, {
   loadCallback: () => void
   isLoading: boolean
 }>>({})
 
-function removeFromQueue(uid: string): void {
+export function removeFromQueue(uid: string): void {
   delete lazyComponentQueue[uid]
 }
 
-function triggerRemainingLazyLoads(): void {
+export function triggerRemainingLazyLoads(): void {
   const anyStillLoading = Object.values(lazyComponentQueue).some(({ isLoading }) => isLoading)
   if (!anyStillLoading) {
     Object.entries(lazyComponentQueue).forEach(([uid, { loadCallback, isLoading }]) => {

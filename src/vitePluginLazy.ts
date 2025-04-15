@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite'
 import { NodeTypes, parse as parseTemplateAST } from '@vue/compiler-dom'
 import { parse as parseSFC } from '@vue/compiler-sfc'
+import { addImportIfNeeded, cleanValue, extractRawValue, getComponentFolderFromScript } from './utils'
 
 interface LazyComponentPluginOptions {
   delay?: number
@@ -10,21 +11,6 @@ interface LazyComponentPluginOptions {
   errorComponentPath?: string
   loadingComponentSuffix?: string
 }
-
-function getComponentFolderFromScript(script: string, compName: string): string | null {
-  const regex = new RegExp(`import\\s+${compName}\\s+from\\s+['"](.+)/[^/]+\\.vue['"]`)
-  const match = script.match(regex)
-  return match?.[1] ?? null
-}
-function addImportIfNeeded(code: string, importStatement: string, imports: string[]): void {
-  if (!code.includes(importStatement)) {
-    imports.push(importStatement)
-  }
-}
-function extractRawValue(template: string, prop: { loc: { start: { offset: number }, end: { offset: number } } }): string {
-  return template.slice(prop.loc.start.offset, prop.loc.end.offset).split('=')[1]
-}
-const cleanValue = (value: string, quote: string = '"'): string => value.replaceAll('"', quote)
 
 export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): Plugin {
   const {
