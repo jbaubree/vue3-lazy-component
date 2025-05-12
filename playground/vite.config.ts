@@ -19,6 +19,6 @@ export default defineConfig({
     Vue(),
     Unocss(),
     Components(),
-    lazyComponentPlugin({ errorComponentPath: '@/components/DefaultErrorComponent.vue' }),
+    lazyComponentPlugin({ delay: 0, errorComponentPath: '@/components/DefaultErrorComponent.vue' }),
   ] as PluginOption[],
 })

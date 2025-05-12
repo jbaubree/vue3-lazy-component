@@ -1,20 +1,11 @@
 import type { Plugin } from 'vite'
+import type { VitePluginOptions } from './types'
 import fs from 'node:fs'
 import path from 'node:path'
 import { NodeTypes, parse as parseTemplateAST } from '@vue/compiler-dom'
 import { parse as parseSFC } from '@vue/compiler-sfc'
 import { globSync } from 'tinyglobby'
 import { addImportIfNeeded, cleanValue, extractRawValue } from './utils'
-
-interface LazyComponentPluginOptions {
-  delay?: number
-  timeout?: number
-  priority?: 'visible-first' | 'immediate'
-  intersectionObserver?: IntersectionObserverInit
-  errorComponentPath?: string
-  loadingComponentSuffix?: string
-  dtsPath?: string
-}
 
 export function transformContent({ code, errorComponentPath, loadingComponentSuffix }: { code: string, errorComponentPath?: string, loadingComponentSuffix: string }): string {
   const lazyTypeDef = `import { DefineComponent } from 'vue';
@@ -56,7 +47,7 @@ type LazyComponentOptions = {
   )
 }
 
-export function lazyComponentPlugin(options: LazyComponentPluginOptions = {}): Plugin {
+export function lazyComponentPlugin(options: VitePluginOptions = {}): Plugin {
   const {
     delay,
     timeout,
