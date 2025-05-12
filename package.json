@@ -13,7 +13,17 @@
   "bugs": {
     "url": "https://github.com/jbaubree/vue3-lazy-component/issues"
   },
-  "keywords": [],
+  "keywords": [
+    "Vue",
+    "Vue3",
+    "Typescript",
+    "Lazy",
+    "Loading",
+    "LazyLoading",
+    "Async",
+    "Deferred",
+    "Component"
+  ],
   "sideEffects": false,
   "exports": {
     ".": {
