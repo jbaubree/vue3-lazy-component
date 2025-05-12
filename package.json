@@ -3,6 +3,7 @@
   "type": "module",
   "version": "0.2.2",
   "packageManager": "pnpm@9.12.1",
+  "description": "Vue3 lazy loading components powered by defineLazyComponent and a Vite plugin",
   "author": "JB Aubrée <jb.aubree@protonmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/jbaubree/vue3-lazy-component#readme",
@@ -16,7 +17,6 @@
   "keywords": [
     "Vue",
     "Vue3",
-    "Typescript",
     "Lazy",
     "Loading",
     "LazyLoading",
