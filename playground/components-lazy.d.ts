@@ -6,13 +6,7 @@
 export {}
 
 /* prettier-ignore */
-import { DefineComponent } from 'vue';
-        
-type DeepPartial<T> = Partial<{
-    [P in keyof T]: DeepPartial<T[P]> | {
-        [key: string]: string | object;
-    };
-}>;
+import { DefineComponent, Component } from 'vue';
 
 type LazyComponentOptions = {
   delay?: number;
@@ -25,26 +19,40 @@ type LazyComponentOptions = {
 
 declare module 'vue' {
   export interface GlobalComponents {
-    LazyComponent1: typeof import('./src/components/Component1.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
-    LazyComponent2: typeof import('./src/components/Component2.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
-    LazyComponent3: typeof import('./src/components/Component3.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
-    LazyComponent4: typeof import('./src/components/Component4.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
-    LazyComponent5: typeof import('./src/components/Component5.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
-    LazyError: typeof import('./src/components/Error.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
-    LazyComponent1: typeof import('./src/components/LazyComponent1.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never
+    LazyComponent1: typeof import('./src/components/Component1.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/Component1.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/Component1.vue')['default']
+    LazyComponent2: typeof import('./src/components/Component2.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/Component2.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/Component2.vue')['default']
+    LazyComponent3: typeof import('./src/components/Component3.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/Component3.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/Component3.vue')['default']
+    LazyComponent4: typeof import('./src/components/Component4.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/Component4.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/Component4.vue')['default']
+    LazyComponent5: typeof import('./src/components/Component5.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/Component5.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/Component5.vue')['default']
+    LazyError: typeof import('./src/components/Error.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/Error.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/Error.vue')['default']
+    LazyComponent1: typeof import('./src/components/LazyComponent1.vue')['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import('./src/components/LazyComponent1.vue')['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, `$${string}`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import('./src/components/LazyComponent1.vue')['default']
   }
 }

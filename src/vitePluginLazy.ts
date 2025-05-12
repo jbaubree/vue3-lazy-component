@@ -8,13 +8,7 @@ import { globSync } from 'tinyglobby'
 import { addImportIfNeeded, cleanValue, extractRawValue } from './utils'
 
 export function transformContent({ code, errorComponentPath, loadingComponentSuffix }: { code: string, errorComponentPath?: string, loadingComponentSuffix: string }): string {
-  const lazyTypeDef = `import { DefineComponent } from 'vue';
-        
-type DeepPartial<T> = Partial<{
-    [P in keyof T]: DeepPartial<T[P]> | {
-        [key: string]: string | object;
-    };
-}>;
+  const lazyTypeDef = `import { DefineComponent, Component } from 'vue';
 
 type LazyComponentOptions = {
   delay?: number;
@@ -40,9 +34,11 @@ type LazyComponentOptions = {
     /^(\s*)([A-Z]\w+):\s+typeof import\((.+?)\)\['default'\]/gm,
     (_, indent, originalName, importPath) => {
       const newName = originalName.startsWith('Lazy') ? originalName : `Lazy${originalName}`
-      return `${indent}${newName}: typeof import(${importPath})['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props, infer Emits>
-              ? DefineComponent<PropsOrPropOptions & DeepPartial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & DeepPartial<LazyComponentOptions>, Emits> 
-              : never`
+      return `${indent}${newName}: typeof import(${importPath})['default'] extends DefineComponent<infer PropsOrPropOptions, infer RawBindings, infer D, infer C, infer M, infer Mixin, infer Extends, infer E, infer EE, infer PP, infer Props>
+              ? DefineComponent<PropsOrPropOptions & Partial<LazyComponentOptions>, RawBindings, D, C, M, Mixin, Extends, E, EE, PP, Props & Partial<LazyComponentOptions>>
+              : typeof import(${importPath})['default'] extends Component<infer Props, infer RawBindings, infer D, infer C, infer M, infer E, infer S>
+                ? DefineComponent<Omit<Props, \`$\${string}\`> & Partial<LazyComponentOptions>, RawBindings, D, C, M, E, string, {}, Props & Partial<LazyComponentOptions>>
+                : typeof import(${importPath})['default']`
     },
   )
 }

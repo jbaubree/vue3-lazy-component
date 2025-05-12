@@ -185,8 +185,7 @@ describe('transformContent', () => {
 
     const result = transformContent({ code, loadingComponentSuffix: 'Loading' })
 
-    expect(result).toContain('import { DefineComponent } from \'vue\'')
-    expect(result).toContain('type DeepPartial<T> = Partial<{')
+    expect(result).toContain('import { DefineComponent, Component } from \'vue\'')
     expect(result).toContain('type LazyComponentOptions = {')
   })
 

@@ -16,7 +16,7 @@ function loadWithError() {
 
 <template>
   <div class="p-5 flex flex-col gap-5">
-    <LazyComponent1 :load-data="loadData">
+    <LazyComponent1 foo="AZE" :load-data="loadData">
       <template #before>
         slot before
       </template>
