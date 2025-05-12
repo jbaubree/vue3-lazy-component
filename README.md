@@ -17,6 +17,8 @@ Vue 3 lazy component system with advanced async control — powered by `defineLa
 - ✅ `loadData()` hook with async queue
 - ✅ Zero-runtime if you use vite plugin
 - ✅ Seamless fallback to `defineAsyncComponent`
+- ✅ Works with auto-import
+- ✅ Support slots
 
 ---
 
@@ -138,8 +140,6 @@ const UserCard = defineLazyComponent({
 ## Known Limitations / TODO
 
 - ⚠️ Only supports `<script setup>` files for plugin mode
-- ❌ Slots are not passed through yet
-- 🧪 Tests WIP
 - 🧪 Expose types details with comments WIP
 - 🧱 SSR not yet supported
 

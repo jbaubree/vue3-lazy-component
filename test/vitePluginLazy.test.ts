@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { lazyComponentPlugin } from '../src/vitePluginLazy'
+import { lazyComponentPlugin, transformContent } from '../src/vitePluginLazy'
 
 vi.mock('@vue/compiler-sfc', () => ({
   parse: vi.fn(() => ({
@@ -31,6 +31,10 @@ vi.mock('@vue/compiler-dom', () => ({
       },
     ],
   })),
+}))
+
+vi.mock('tinyglobby', () => ({
+  globSync: vi.fn().mockReturnValue(['src/components/MyComp.vue', 'src/components/MyCompSkeleton.vue']),
 }))
 
 vi.mock('../src/utils', async () => {
@@ -77,8 +81,8 @@ describe('lazyComponentPlugin (full coverage)', () => {
 
     if (typeof result !== 'string') {
       expect(result?.code).toBeDefined()
-      expect(result?.code).toContain(`defineLazyComponent({ componentFactory: () => import('./components/MyComp.vue')`)
-      expect(result?.code).toContain(`loadingComponent: MyCompSkeleton`)
+      expect(result?.code).toContain(`defineLazyComponent({ componentFactory: () => import('@/components/MyComp.vue')`)
+      expect(result?.code).toContain(`loadingComponent: MyCompLoadingComponent`)
       expect(result?.code).toContain(`delay: 100`)
       expect(result?.code).toContain(`timeout: 3000`)
       expect(result?.code).toContain(`priority: 'visible-first'`)
@@ -86,7 +90,7 @@ describe('lazyComponentPlugin (full coverage)', () => {
       expect(result?.code).toMatch(/intersectionObserver:.*rootMargin/)
       expect(result?.code).toContain(`errorComponent: LazyCustomErrorComponent`)
       expect(result?.code).toContain(`import LazyCustomErrorComponent from '@/components/Error.vue'`)
-      expect(result?.code).toContain(`import MyCompSkeleton from './components/MyCompSkeleton.vue'`)
+      expect(result?.code).toContain(`import MyCompLoadingComponent from '@/components/MyCompSkeleton.vue'`)
       expect(result?.code).toContain(`import { defineLazyComponent } from 'vue3-lazy-component'`)
     }
   })
@@ -170,5 +174,85 @@ describe('lazyComponentPlugin (full coverage)', () => {
     })
     const result = await (plugin.transform as TransformFn)?.('<template><LazyMyComp /></template><script setup>import { defineLazyComponent } from "vue3-lazy-component"</script>', 'Test.vue')
     expect(result?.code.match(/defineLazyComponent/g)?.length).toBeGreaterThan(1)
+  })
+})
+
+describe('transformContent', () => {
+  it('should add lazy component types to the code', () => {
+    const code = `declare module 'vue' {
+      MyComponent: typeof import('./MyComponent')['default'];
+    }`
+
+    const result = transformContent({ code, loadingComponentSuffix: 'Loading' })
+
+    expect(result).toContain('import { DefineComponent } from \'vue\'')
+    expect(result).toContain('type DeepPartial<T> = Partial<{')
+    expect(result).toContain('type LazyComponentOptions = {')
+  })
+
+  it('should rename the components to LazyComponent if they are not already prefixed', () => {
+    const code = `declare module 'vue' {
+      MyComponent: typeof import('./MyComponent')['default'];
+      AnotherComponent: typeof import('./AnotherComponent')['default'];
+    }`
+
+    const result = transformContent({ code, loadingComponentSuffix: 'Loading' })
+
+    expect(result).toContain('LazyMyComponent')
+    expect(result).toContain('LazyAnotherComponent')
+  })
+
+  it('should not rename components that already start with Lazy', () => {
+    const code = `declare module 'vue' {
+      LazyMyComponent: typeof import('./MyComponent')['default'];
+      LazyAnotherComponent: typeof import('./AnotherComponent')['default'];
+    }`
+
+    const result = transformContent({ code, loadingComponentSuffix: 'Loading' })
+
+    expect(result).toContain('LazyMyComponent')
+    expect(result).toContain('LazyAnotherComponent')
+  })
+
+  it('should remove lines containing the loading component suffix', () => {
+    const code = `declare module 'vue' {
+      MyComponent: typeof import('./MyComponent')['default'];
+      MyComponentLoading: typeof import('./MyComponentLoading')['default'];
+    }`
+
+    const result = transformContent({ code, loadingComponentSuffix: 'Loading' })
+
+    expect(result).not.toContain('MyComponentLoading')
+  })
+
+  it('should remove lines containing the error component if specified', () => {
+    const code = `declare module 'vue' {
+      MyComponent: typeof import('./MyComponent')['default'];
+      MyComponentError: typeof import('./MyComponentError')['default'];
+    }`
+
+    const errorComponentPath = './MyComponentError'
+    const result = transformContent({ code, errorComponentPath, loadingComponentSuffix: 'Loading' })
+
+    expect(result).not.toContain('MyComponentError')
+  })
+
+  it('should handle an empty code correctly', () => {
+    const code = ``
+
+    const result = transformContent({ code, loadingComponentSuffix: 'Loading' })
+    expect(result).toBe('')
+  })
+
+  it('should return the correct transformed code with errorComponentPath', () => {
+    const code = `declare module 'vue' {
+      MyComponent: typeof import('./MyComponent')['default'];
+    }`
+
+    const errorComponentPath = './MyComponentError'
+    const result = transformContent({ code, errorComponentPath, loadingComponentSuffix: 'Loading' })
+
+    expect(result).not.toContain('MyComponentError')
+    expect(result).toContain('LazyMyComponent')
   })
 })

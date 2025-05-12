@@ -17,6 +17,7 @@ export default defineBuildConfig({
     '@vue/compiler-sfc',
     '@vue/compiler-core',
     '@vue/shared',
+    'tinyglobby',
   ],
   declaration: true,
   failOnWarn: false,
